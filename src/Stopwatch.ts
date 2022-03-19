@@ -1,81 +1,74 @@
+interface StopwatchDom {
+  currentTime: HTMLDivElement;
+  startBtn: HTMLButtonElement;
+  stopBtn: HTMLButtonElement;
+  resetBtn: HTMLButtonElement;
+  resultsList: HTMLElement;
+  addToListBtn: HTMLButtonElement;
+  resetListBtn: HTMLButtonElement;
+  [x: string]: HTMLElement;
+}
+
+type timerType = ReturnType<typeof setInterval> | number | null
+
 abstract class Stopwatch {
 
-  currentTime = 0
-  timer = null
-  dom = {}
+  protected currentTime: number = 0;
+  private timer: timerType = null;
+  protected dom = <StopwatchDom> {};
 
-  constructor(element) {
-    this.getElements(element)
-    this.initActions()
-    this.renderTime()
+  constructor(element: HTMLDivElement) {
+    this.getElements(element);
+    this.initActions();
+    this.renderTime();
   }
 
-  getElements(element) {
-    /*
-    Funkcja ta powinna przyjąć jako argument referencję do elementu DOM, w którym znajduje się
-    cała struktura stopera. Następnie powinna przygotować referencję do obecnych w tym elemencie dzieci.
-    
-    Konkretnie do: 
-    – stopwatch__current-time, 
-    – wszystkich buttonów stopwatch__actions
-
-    Wszystkie referencje dla czytelności przechowuj w obiekcie this.dom.
-    */
+  private getElements(element: HTMLElement): void {
+    this.dom.currentTime = <HTMLDivElement> element.querySelector('.stopwatch__current-time');
+    this.dom.startBtn = <HTMLButtonElement> element.querySelector('.stopwatch__actions .stopwatch__start-btn');
+    this.dom.stopBtn = <HTMLButtonElement> element.querySelector('.stopwatch__actions .stopwatch__stop-btn');
+    this.dom.resetBtn = <HTMLButtonElement> element.querySelector('.stopwatch__actions .stopwatch__reset-btn');
   }
 
-  initActions() {
-    /*
-    Funkcja ta powinna nadać buttonom z buttonów stopwatch__actions odpowiednie nasłuchiwacze na event click. 
-    Kliknięcie na każdy z buttonów powinno uruchamiać odpowiednie funkcje.
-
-    Start -> start()
-    Stop -> stop()
-    Reset -> reset()
-
-    Aby dostać się do tych elementów, wykorzystaj referencję przygotowane wcześniej w funkcji this.getElements.
-    */
+  private initActions(): void {
+    this.dom.startBtn.addEventListener('click', () => this.start());
+    this.dom.stopBtn.addEventListener('click', () => this.stop());
+    this.dom.resetBtn.addEventListener('click', () => this.reset());
   }
 
-  formatTime(time) {
-    /*
-    Funkcja ta powinna przyjmować czas w milisekundach a następnie zwracać go w formacie mm:ss:ms (np. 02:23:12).
-    */
-  } 
+  protected formatTime(time: number): string {
+    const pad = (num: number): string => (num < 10 ? num.toString().padStart(2, '0') : num.toString());
 
-  renderTime() {
-    /*
-    Funkcja ta powinna renderować w stopwatch__current-time zawartość obiektu this.currentTime.
-    Oczywiście wcześniej należy sformatować czas przy użyciu funkcji this.formatTime. 
-    */
+    const mm = Math.floor(time / 60000);
+    const ss = Math.floor((time - mm * 60000) / 10000);
+    const ms = (time - mm * 60000 - ss * 10000);
+    const formatted: string = `${pad(mm)}:${pad(ss)}:${pad(ms).substr(0, 2)}`;
+
+    return formatted;
   }
 
-  start() {
-    /*
-    Funkcja ta powinna wystartować interwał, który będzie wykonywał się co milisekundę.
-    Powinien on każdorazowo włączać funkcję this.step
-
-    Dla wygody przypisz ten interwał do this.timer
-    */
+  protected renderTime(): void {
+    this.dom.currentTime.innerHTML = this.formatTime(this.currentTime);
   }
 
-  step() {
-    /*
-    Funkcja ta powinna zwiększać liczbę sekund w this.currentTime o jeden, a następnie uruchamiać metodę
-    renderującą aktualny czas w HTML-u (this.renderTime).
-    */
+  private start(): void {
+    this.timer === null ? this.timer = setInterval(() => this.step(), 1000) : this.timer;
   }
 
-  stop() {
-    /* 
-    Funkcja ta powinna zatrzymywać interval przypisany do this.timer.
-    */
+  private step(): void {
+    this.currentTime += 1;
+    this.renderTime();
   }
 
-  reset() {
-    /*
-    Ta funkcja powinna resetować czas zapisany w this.currentTime, a więć zmieniać jego wartość na zero.
-    Naturalnie powinno to wiązać się również z przerenderowaniem HTML-a (this.renderTime).
-    */
+  private stop(): void {
+    clearInterval(this.timer);
+    this.timer = null;
+  }
+
+  private reset(): void {
+    this.currentTime = 0;
+    this.renderTime();
+    this.stop();
   }
 
 }

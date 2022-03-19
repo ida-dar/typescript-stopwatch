@@ -52,15 +52,18 @@ body {
     }
   }
 
-  &__results ul {
+  &__results .stopwatch__results__list {
+    display: flex;
+    flex-wrap: wrap;
     list-style-type: none;
     margin: 2rem;
     padding: 0;
 
     li {
+      max-width: 125px;
       padding: 1rem;
       border-bottom: 1px dashed rgba(105, 127, 238, 0.25);
     }
   }
-  
+
 }
