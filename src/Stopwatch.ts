@@ -9,7 +9,7 @@ interface StopwatchDom {
   [x: string]: HTMLElement;
 }
 
-type timerType = ReturnType<typeof setInterval> | number | null
+type timerType = ReturnType<typeof setInterval> | number | null | unknown;
 
 abstract class Stopwatch {
 
@@ -17,7 +17,7 @@ abstract class Stopwatch {
   private timer: timerType = null;
   protected dom = <StopwatchDom> {};
 
-  constructor(element: HTMLDivElement) {
+  constructor(element: HTMLElement) {
     this.getElements(element);
     this.initActions();
     this.renderTime();
@@ -61,7 +61,7 @@ abstract class Stopwatch {
   }
 
   private stop(): void {
-    clearInterval(this.timer);
+    clearInterval(this.timer as NodeJS.Timeout);
     this.timer = null;
   }
 
